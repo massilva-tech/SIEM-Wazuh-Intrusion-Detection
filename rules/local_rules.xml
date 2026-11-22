@@ -1,0 +1,58 @@
+<!--  Local rules  -->
+<!--  Custom rules for the Wazuh SIEM lab (PFE project)  -->
+<!--  Copy to /var/ossec/etc/rules/local_rules.xml, then restart the manager:  sudo systemctl restart wazuh-manager  -->
+<group name="local,syslog,pfe,">
+<!--  Firewall (pfSense) logs received by the Wazuh server.
+       Replace the location with the IP address of your pfSense VM.  -->
+<rule id="103005" level="5">
+<location>192.168.121.30</location>
+<description>pfsens - Activite reseau interceptee sur le pare-feu</description>
+</rule>
+<!--  PFE 1: sensitive account seen in Windows failed-logon events (rule 60122)  -->
+<rule id="100001" level="10" overwrite="yes">
+<if_sid>60122</if_sid>
+<match>kbenali</match>
+<description>Règle PFE 1 : Détection spécifique du compte sensible kbenali dans les logs Windows.</description>
+</rule>
+<!--  PFE 2: password found by Hydra (lab test password, change it if you use another one)  -->
+<rule id="100002" level="10" overwrite="yes">
+<if_sid>60122</if_sid>
+<match>Motdepasse1!</match>
+<description>Règle PFE 2 : Détection du mot de passe compromis trouvé par l'outil Hydra.</description>
+</rule>
+<!--  PFE 3: default Administrator account  -->
+<rule id="100003" level="10" overwrite="yes">
+<match>Administrateur</match>
+<description>Règle PFE 3 : Surveillance du compte Administrateur par défaut.</description>
+</rule>
+<!--  PFE 4: critical Windows system directory  -->
+<rule id="100004" level="12" overwrite="yes">
+<match>C:\Windows\System32</match>
+<description>Règle PFE 4 : Accès à un répertoire système critique du système d'exploitation Windows.</description>
+</rule>
+<!--  PFE 5: SMB port (lateral movement)  -->
+<rule id="100005" level="10" overwrite="yes">
+<match>445</match>
+<description>Règle PFE 5 : Tentative d'accès au port SMB (partage de fichiers), souvent utilisé pour le mouvement latéral.</description>
+</rule>
+<!--  PFE 6: RDP port  -->
+<rule id="100006" level="10" overwrite="yes">
+<match>3389</match>
+<description>Règle PFE 6 : Tentative de connexion au port RDP (Bureau à distance).</description>
+</rule>
+<!--  PFE 7: command interpreter  -->
+<rule id="100007" level="10" overwrite="yes">
+<match>cmd.exe</match>
+<description>Règle PFE 7 : Exécution de l'interpréteur de commandes (cmd.exe), souvent utilisé par les attaquants.</description>
+</rule>
+<!--  PFE 8: PowerShell (privilege escalation)  -->
+<rule id="100008" level="10" overwrite="yes">
+<match>powershell.exe</match>
+<description>Règle PFE 8 : Exécution de PowerShell, très utilisé pour l'escalade de privilèges.</description>
+</rule>
+<!--  PFE 9: generic failed logon (French Windows locale)  -->
+<rule id="100009" level="10" overwrite="yes">
+<match>Échec de l'ouverture de session</match>
+<description>Règle PFE 9 : Détection d'un échec d'authentification générique en français.</description>
+</rule>
+</group>
